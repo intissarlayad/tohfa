@@ -54,6 +54,16 @@ with app.app_context():
     except Exception as e:
         print(f"❌ Erreur d'initialisation : {e}")
 
+from setup_db import reset_and_seed
+
+with app.app_context():
+    # On vérifie si la table Fabric est vide
+    from models import Fabric
+    if Fabric.query.count() == 0:
+        print("Base vide, lancement du seeding...")
+        reset_and_seed()
+
+        
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = "Veuillez vous connecter pour continuer."
