@@ -19,12 +19,19 @@ load_dotenv()
 
 # ─────────────────────────────────────────────
 #  App configuration
-# ─────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "tohfa_dev_secret_2026")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    "DATABASE_URL", "mysql+pymysql://root@localhost/tohfa_db")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://root@localhost/nom_de_ta_base_locale')
+
+# 1. On récupère l'URL de Railway
+database_url = os.getenv("DATABASE_URL")
+
+# 2. Correction automatique du driver pour Railway (mysql:// -> mysql+pymysql://)
+if database_url and database_url.startswith("mysql://"):
+    database_url = database_url.replace("mysql://", "mysql+pymysql://", 1)
+
+# 3. On applique l'URL (ou la base locale si DATABASE_URL est vide)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or "mysql+pymysql://root@localhost/tohfa_db"
+
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024   # 16 MB max upload
