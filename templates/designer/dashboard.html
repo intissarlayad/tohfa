@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Designer{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-up">
+  <h1>Mon Espace Créateur</h1>
+  <div class="divider-gold"></div>
+  <p>Bonjour, <strong>{{ current_user.full_name }}</strong> — gérez vos designs et suivez vos performances</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" data-aos="fade-up">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-palette"></i></div>
+    <div class="stat-value">{{ designs|length }}</div>
+    <div class="stat-label">Designs publiés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
+    <div class="stat-value">{{ selections_count }}</div>
+    <div class="stat-label">Sélections clients</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
+    <div class="stat-value">{{ "%.0f"|format(earnings) }}</div>
+    <div class="stat-label">Gains estimés (MAD)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+    <div class="stat-value">{{ "%.0f"|format(current_user.margin_pct * 100) }}%</div>
+    <div class="stat-label">Votre marge</div>
+  </div>
+</div>
+
+<!-- Action button -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;" data-aos="fade-up">
+  <h2 class="section-title" style="margin-bottom:0;">
+    <i class="fa-solid fa-images"></i> Mes designs
+  </h2>
+  <a href="{{ url_for('designer_upload') }}" class="btn-gold">
+    <i class="fa-solid fa-plus"></i> Nouveau design
+  </a>
+</div>
+
+<!-- Designs table -->
+{% if designs %}
+<div class="design-table-wrap" data-aos="fade-up">
+  <table class="design-table">
+    <thead>
+      <tr>
+        <th>Aperçu</th>
+        <th>Nom</th>
+        <th>Prix (MAD)</th>
+        <th>Sélections</th>
+        <th>Gains</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for design in designs %}
+      <tr>
+        <td>
+          {% if design.image_url %}
+            <img src="{{ design.image_url }}" class="design-thumb" alt="{{ design.name }}"/>
+          {% else %}
+            <div class="no-img-thumb"><i class="fa-solid fa-image"></i></div>
+          {% endif %}
+        </td>
+        <td>
+          <strong>{{ design.name }}</strong>
+          {% if design.description %}
+          <br><small style="color:var(--text-muted);">{{ design.description[:60] }}{% if design.description|length > 60 %}...{% endif %}</small>
+          {% endif %}
+        </td>
+        <td><strong>{{ "%.0f"|format(design.price) }}</strong></td>
+        <td>
+          <span style="color:var(--gold);font-weight:600;">{{ design.selections|length }}</span>
+        </td>
+        <td>
+          {{ "%.0f"|format(design.selections|length * design.price * current_user.margin_pct) }} MAD
+        </td>
+        <td>
+          {% if design.is_active %}
+            <span class="badge badge-active"><i class="fa-solid fa-circle"></i> Actif</span>
+          {% else %}
+            <span class="badge badge-inactive"><i class="fa-solid fa-circle"></i> Inactif</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display:flex;gap:.4rem;">
+            <!-- Toggle active/inactive -->
+            <form method="POST" action="{{ url_for('designer_toggle_design', design_id=design.design_id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn-icon"
+                      title="{{ 'Désactiver' if design.is_active else 'Activer' }}">
+                <i class="fa-solid fa-{{ 'eye-slash' if design.is_active else 'eye' }}"></i>
+              </button>
+            </form>
+            <!-- Delete -->
+            <form method="POST" action="{{ url_for('designer_delete_design', design_id=design.design_id) }}"
+                  onsubmit="return confirm('Supprimer ce design définitivement ?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn-icon danger" title="Supprimer">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state" data-aos="fade-up">
+  <i class="fa-solid fa-palette"></i>
+  <h3>Aucun design publié</h3>
+  <p>Partagez votre premier design avec nos clients.</p>
+  <a href="{{ url_for('designer_upload') }}" class="btn-gold" style="margin-top:1.2rem;">
+    <i class="fa-solid fa-plus"></i> Publier un design
+  </a>
+</div>
+{% endif %}
+
+<!-- Earnings info -->
+{% if designs %}
+<div style="margin-top:2.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.8rem;" data-aos="fade-up">
+  <h3 class="section-title"><i class="fa-solid fa-circle-info"></i> Comment fonctionnent les gains ?</h3>
+  <p style="color:var(--text-muted);font-size:.9rem;line-height:1.7;">
+    Chaque fois qu'un client sélectionne l'un de vos designs, vous générez une commission de
+    <strong style="color:var(--gold);">{{ "%.0f"|format(current_user.margin_pct * 100) }}%</strong>
+    sur le prix de base du design. Les gains affichés sont des estimations basées sur les sélections actives.
+    Contactez TOHFA pour le règlement de vos commissions.
+  </p>
+</div>
+{% endif %}
+{% endblock %}

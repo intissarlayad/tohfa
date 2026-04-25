@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Designs des Créateurs{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-up">
+  <h1>Designs des Créateurs</h1>
+  <div class="divider-gold"></div>
+  <p>L'art de transformer le tissu en chef-d'œuvre — par nos designers partenaires</p>
+</div>
+
+{% if designs %}
+<div class="grid-3">
+  {% for design in designs %}
+  {% set is_selected = (current_user.selection and current_user.selection.design_id == design.design_id) %}
+  <div class="card" data-aos="fade-up" data-aos-delay="{{ loop.index0 % 3 * 100 }}">
+    <div class="card-img-wrap">
+      {% if design.image_url %}
+        <img src="{{ design.image_url }}" alt="{{ design.name }}" loading="lazy"/>
+      {% else %}
+        <div style="height:320px;display:flex;align-items:center;justify-content:center;background:var(--bg-card2);color:var(--text-muted);font-size:3rem;">
+          <i class="fa-solid fa-palette"></i>
+        </div>
+      {% endif %}
+      {% if is_selected %}
+      <span class="selected-badge">
+        <i class="fa-solid fa-check"></i> Votre design
+      </span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ design.name }}</h3>
+      <p class="card-designer">
+        <i class="fa-solid fa-palette"></i>
+        par <strong>{{ design.designer.full_name }}</strong>
+      </p>
+      {% if design.description %}
+      <p class="card-desc">{{ design.description }}</p>
+      {% endif %}
+      <p class="card-price">
+        <i class="fa-solid fa-tag"></i>
+        À partir de <strong>{{ "%.0f"|format(design.price) }} MAD</strong>
+      </p>
+      {% if is_selected %}
+        <span class="btn-selected">
+          <i class="fa-solid fa-circle-check"></i> Design sélectionné
+        </span>
+      {% else %}
+        <a href="{{ url_for('select_design', design_id=design.design_id) }}" class="btn-select">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Choisir ce design
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <i class="fa-solid fa-palette"></i>
+  <h3>Aucun design disponible pour le moment</h3>
+  <p>Nos créateurs travaillent sur de nouvelles collections. Revenez bientôt !</p>
+</div>
+{% endif %}
+{% endblock %}

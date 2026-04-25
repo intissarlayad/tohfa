@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Suggestions IA{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-up">
+  <h1>Suggestions IA</h1>
+  <div class="divider-gold"></div>
+  <p>Notre intelligence artificielle sélectionne les tissus les plus compatibles avec votre style</p>
+</div>
+
+{% if fabrics %}
+<div class="grid-3">
+  {% for fabric, score in fabrics %}
+  <div class="card" data-aos="fade-up" data-aos-delay="{{ loop.index0 % 3 * 100 }}">
+    <div class="card-img-wrap">
+      <img src="{{ fabric.image_url }}" alt="{{ fabric.name }}" loading="lazy"/>
+      <span style="position:absolute;top:1rem;left:1rem;background:rgba(201,168,76,.9);color:#1a1624;font-size:.7rem;font-weight:700;padding:.3rem .7rem;border-radius:99px;letter-spacing:.5px;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> IA
+      </span>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ fabric.name }}</h3>
+      <p class="card-desc">{{ fabric.description }}</p>
+      <div class="score-bar-wrap" style="margin-bottom:1.2rem;">
+        <div class="score-bar">
+          <div class="score-fill" style="width:{{ (score * 100)|int }}%"></div>
+        </div>
+        <span class="score-val">{{ (score * 100)|int }}% compatible</span>
+      </div>
+      <a href="{{ url_for('select_fabric', fabric_id=fabric.fabric_id) }}" class="btn-select">
+        <i class="fa-solid fa-plus"></i> Choisir ce tissu
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <i class="fa-solid fa-wand-magic-sparkles"></i>
+  <h3>Sélectionnez d'abord un tissu</h3>
+  <p>Visitez la collection et choisissez un tissu pour obtenir des suggestions personnalisées.</p>
+  <a href="{{ url_for('fabrics') }}" class="btn-gold" style="margin-top:1.2rem;">
+    <i class="fa-solid fa-scroll"></i> Voir la collection
+  </a>
+</div>
+{% endif %}
+{% endblock %}

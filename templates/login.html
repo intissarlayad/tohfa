@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TOHFA | Connexion</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo_tohfa.jpeg') }}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">
+        <i class="fa-solid fa-info-circle"></i> {{ message }}
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<!-- Theme toggle floating -->
+<button class="theme-btn" id="themeToggle" style="position:fixed;top:1.2rem;right:1.2rem;z-index:999;">
+  <i class="fa-solid fa-moon" id="themeIcon"></i>
+</button>
+
+<div class="auth-page">
+  <div class="auth-card" data-aos="fade-up">
+    <div class="auth-logo">
+      <img src="{{ url_for('static', filename='images/logo_tohfa.jpeg') }}" alt="TOHFA"/>
+      <h1>TOHFA</h1>
+      <p>L'excellence du tissu haute couture</p>
+    </div>
+
+    <h2 class="auth-title">Connexion</h2>
+
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" name="email" placeholder="votre@email.com" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input class="form-input" type="password" name="password" placeholder="••••••••" required/>
+      </div>
+      <button type="submit" class="form-submit">
+        <i class="fa-solid fa-right-to-bracket me-2"></i> Se connecter
+      </button>
+    </form>
+
+    <div class="form-link">
+      Pas encore de compte ? <a href="{{ url_for('register') }}">Créer un compte</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const html = document.documentElement;
+  const saved = localStorage.getItem('tohfa-theme') || 'light';
+  html.setAttribute('data-theme', saved);
+  document.getElementById('themeIcon').className = saved === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tohfa-theme', next);
+    document.getElementById('themeIcon').className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  });
+</script>
+</body>
+</html>

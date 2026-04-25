@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Publier un Design{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-up">
+  <h1>Publier un Design</h1>
+  <div class="divider-gold"></div>
+  <p>Partagez votre création avec nos clients</p>
+</div>
+
+<div class="upload-card" data-aos="fade-up">
+  <h2>Nouveau design</h2>
+  <p class="sub">Remplissez les informations et uploadez une photo de votre création.</p>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+    <div class="form-group">
+      <label class="form-label">Nom du design *</label>
+      <input class="form-input" type="text" name="name" placeholder="Ex: Robe Ébène Royale" required/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" name="description"
+                placeholder="Décrivez votre design : coupe, style, occasions..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Prix de base (MAD)</label>
+      <input class="form-input" type="number" name="price" value="500" min="50" step="50"
+             placeholder="500"/>
+      <small style="color:var(--text-muted);font-size:.78rem;">
+        Votre commission : {{ "%.0f"|format(current_user.margin_pct * 100) }}% de ce montant par sélection.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Photo du design</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" name="image" id="imageInput" accept="image/*" onchange="previewImage(this)"/>
+        <div class="drop-zone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <p><strong>Cliquez ou glissez</strong> une image ici</p>
+        <p style="font-size:.8rem;margin-top:.3rem;">PNG, JPG, WEBP — max 16 Mo</p>
+        <img id="previewImg" alt="Aperçu"/>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+      <button type="submit" class="form-submit" style="flex:1;">
+        <i class="fa-solid fa-upload"></i> Publier le design
+      </button>
+      <a href="{{ url_for('designer_dashboard') }}" class="btn-outline-gold" style="padding:.85rem 1.5rem;">
+        Annuler
+      </a>
+    </div>
+  </form>
+</div>
+
+{% block scripts %}
+<script>
+function previewImage(input) {
+  const img = document.getElementById('previewImg');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Drag & drop visual
+const dz = document.getElementById('dropZone');
+['dragover','dragenter'].forEach(e => dz.addEventListener(e, () => dz.classList.add('active')));
+['dragleave','drop'].forEach(e => dz.addEventListener(e, () => dz.classList.remove('active')));
+</script>
+{% endblock %}
+{% endblock %}

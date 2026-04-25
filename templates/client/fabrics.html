@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Collection de Tissus{% endblock %}
+
+{% block content %}
+<div class="page-header" data-aos="fade-up">
+  <h1>Collection Exclusive</h1>
+  <div class="divider-gold"></div>
+  <p>Trouvez la texture parfaite pour vos créations</p>
+</div>
+
+<div class="grid-3">
+  {% for fabric in fabrics %}
+  {% set is_selected = (current_user.selection and current_user.selection.fabric_id == fabric.fabric_id) %}
+  <div class="card" data-aos="fade-up" data-aos-delay="{{ loop.index0 % 3 * 100 }}">
+    <div class="card-img-wrap">
+      <img src="{{ fabric.image_url }}" alt="{{ fabric.name }}" loading="lazy"/>
+      {% if is_selected %}
+      <span class="selected-badge">
+        <i class="fa-solid fa-check"></i> Votre choix
+      </span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ fabric.name }}</h3>
+      <p class="card-desc">"{{ fabric.description }}"</p>
+      {% if is_selected %}
+        <span class="btn-selected">
+          <i class="fa-solid fa-circle-check"></i> Tissu sélectionné
+        </span>
+      {% else %}
+        <a href="{{ url_for('select_fabric', fabric_id=fabric.fabric_id) }}" class="btn-select">
+          <i class="fa-solid fa-plus"></i> Choisir ce tissu
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state" style="grid-column:1/-1">
+    <i class="fa-solid fa-scroll"></i>
+    <h3>Aucun tissu disponible</h3>
+    <p>La collection sera bientôt mise à jour.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

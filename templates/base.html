@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TOHFA | {% block title %}Luxury Couture{% endblock %}</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo_tohfa.jpeg') }}"/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-inner">
+
+    <a class="brand" href="{{ url_for('fabrics') if current_user.is_authenticated and current_user.is_client else url_for('designer_dashboard') if current_user.is_authenticated else url_for('login') }}">
+      <img src="{{ url_for('static', filename='images/logo_tohfa.jpeg') }}" alt="TOHFA"/>
+      <span>TOHFA</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="nav-links" id="navLinks">
+      {% if current_user.is_authenticated %}
+        {% if current_user.is_client %}
+          <li><a href="{{ url_for('fabrics') }}" class="nav-link {% if request.endpoint == 'fabrics' %}active{% endif %}">
+            <i class="fa-solid fa-scroll"></i> Collection
+          </a></li>
+          <li><a href="{{ url_for('designs') }}" class="nav-link {% if request.endpoint == 'designs' %}active{% endif %}">
+            <i class="fa-solid fa-shirt"></i> Designs
+          </a></li>
+          <li><a href="{{ url_for('recommend') }}" class="nav-link gold {% if request.endpoint == 'recommend' %}active{% endif %}">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Suggestions IA
+          </a></li>
+          <li><a href="{{ url_for('my_selection') }}" class="nav-link {% if request.endpoint == 'my_selection' %}active{% endif %}">
+            <i class="fa-solid fa-heart"></i> Mon Choix
+          </a></li>
+        {% else %}
+          <!-- Designer nav -->
+          <li><a href="{{ url_for('designer_dashboard') }}" class="nav-link {% if request.endpoint == 'designer_dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i> Dashboard
+          </a></li>
+          <li><a href="{{ url_for('designer_upload') }}" class="nav-link gold {% if request.endpoint == 'designer_upload' %}active{% endif %}">
+            <i class="fa-solid fa-plus-circle"></i> Publier un Design
+          </a></li>
+        {% endif %}
+      {% endif %}
+    </ul>
+
+    <div class="nav-right">
+      <!-- Theme toggle -->
+      <button class="theme-btn" id="themeToggle" title="Changer le thème" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+
+      {% if current_user.is_authenticated %}
+        <div class="user-pill">
+          <i class="fa-solid fa-{% if current_user.is_designer %}palette{% else %}user{% endif %}"></i>
+          <span>{{ current_user.full_name.split()[0] }}</span>
+          <span class="role-badge">{{ 'Designer' if current_user.is_designer else 'Client' }}</span>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn-outline-gold btn-sm">
+          <i class="fa-solid fa-right-from-bracket"></i> Quitter
+        </a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-gold btn-sm">Connexion</a>
+        <a href="{{ url_for('register') }}" class="btn-outline-gold btn-sm">S'inscrire</a>
+      {% endif %}
+
+      <!-- Mobile hamburger -->
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── FLASH MESSAGES ─────────────────────── -->
+<div class="flash-container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}" role="alert">
+        <i class="fa-solid fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}triangle-exclamation{% else %}info-circle{% endif %}"></i>
+        {{ message }}
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<!-- ── MAIN ───────────────────────────────── -->
+<main class="page-main">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="brand-gold">TOHFA</span>
+      <p>L'élégance du tissu haute couture.</p>
+    </div>
+    <div class="footer-contact">
+      <h6>Contact</h6>
+      <p><i class="fa-solid fa-location-dot"></i> Marjane 2, Meknès, Maroc</p>
+      <p><i class="fa-solid fa-phone"></i> +212 700 91-5025</p>
+    </div>
+    <div class="footer-social">
+      <h6>Suivez-nous</h6>
+      <div class="social-links">
+        <a href="https://www.instagram.com/tohfa.rt" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="#"><i class="fa-brands fa-facebook"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 TOHFA · Tous droits réservés</p>
+  </div>
+</footer>
+
+<!-- ── SCRIPTS ────────────────────────────── -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  // ── AOS ──
+  AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic' });
+
+  // ── Theme toggle ──
+  const html       = document.documentElement;
+  const themeBtn   = document.getElementById('themeToggle');
+  const themeIcon  = document.getElementById('themeIcon');
+  const saved      = localStorage.getItem('tohfa-theme') || 'light';
+  html.setAttribute('data-theme', saved);
+  updateIcon(saved);
+
+  themeBtn.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tohfa-theme', next);
+    updateIcon(next);
+  });
+
+  function updateIcon(theme) {
+    themeIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  }
+
+  // ── Mobile nav ──
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+    hamburger.classList.toggle('active');
+  });
+
+  // ── Flash auto-dismiss ──
+  setTimeout(() => {
+    document.querySelectorAll('.flash').forEach(el => el.style.opacity = '0');
+    setTimeout(() => document.querySelectorAll('.flash').forEach(el => el.remove()), 500);
+  }, 4000);
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
